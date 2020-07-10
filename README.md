@@ -4,31 +4,31 @@ A GraphQL implementation on top of the example set of data (Movies) from Neo4j. 
 
 ## Setup
 
-0. Install the NPM modules:
+1. Install the NPM modules:
 
-```bash
-npm install
-```
+    ```bash
+    npm install
+    ```
 
-0. Start the neo4j instance
+1. Start the neo4j instance
 
-```bash
-docker-compose up -d
-```
+    ```bash
+    docker-compose up -d
+    ```
 
-0. Seed the database
+1. Seed the database
 
-Navigate to the Neo4j browser (http://localhost:7474/browser/), log in to the instance with the default user/pass (`neo4j`/`test`). In the run box at the top, copy the contents of the file [./seed.cypher](./seed.cypher) and run it.
+    Navigate to the Neo4j browser (http://localhost:7474/browser/), log in to the instance with the default user/pass (`neo4j`/`test`). In the run box at the top, copy the contents of the file [./seed.cypher](./seed.cypher) and run it.
 
-At this point, the database should have all the seed data for the Movie example, with some additional labels to support our interface model (more detail later).
+    At this point, the database should have all the seed data for the Movie example, with some additional labels to support our interface model (more detail later).
 
-0. Start the GraphQL server
+1. Start the GraphQL server
 
-```bash
-npm start
-```
+    ```bash
+    npm start
+    ```
 
-Navigate to http://localhost:3000/graphql to access the GraphQL playground where you can execute queries against the database. The tab panel on the right side of the page will allow you to explore the schema and its capabilities.
+    Navigate to http://localhost:3000/graphql to access the GraphQL playground where you can execute queries against the database. The tab panel on the right side of the page will allow you to explore the schema and its capabilities.
 
 ## The Schema
 
@@ -73,77 +73,77 @@ In the schema above (which is stiched from the `.graphql` files in the `./src/sc
 
 In the GraphQL Playground, feel free to use the following queries to play with the data:
 
-0. **Fetch first 10 movies and some simple properties**
+1. **Fetch first 10 movies and some simple properties**
 
-```graphql
-query {
-  Movie(first:10) {
-    title
-    tagline
-    released
-  }
-}
-```
-
-0. **Fetch first 10 movies along with their connected actors and director**
-
-```graphql
-query {
-  Movie(first:10) {
-    title
-    tagline
-    released
-    actors {
-      name
-      born
-    }
-    director {
-      name
-      born
-    }
-  }
-}
-```
-
-0. **Fetch the actor "Tom Hanks" and his four most recent movies**
-
-```graphql
-query {
-  Actor(name:"Tom Hanks") {
-    name
-    born
-    movies(first:4,orderBy:released_desc) {
-      title
-      released
-    }
-  }
-}
-```
-
-0. **Fetch the oldest 10 people and indicate the movies they acted in and/or directed**
-
-In this query, you can see the concept of how interfaces work in GraphQL. The query is on the type `Person` which is an interface. On that interface, we can gather the interface fields `name` and `born` without specifying a type. Using the fragment `... on Type` syntax, we can also specify fields to return _if_ the result matches a specific type, and even map them to a new name. In this case, we are fetching all `movies` for results of type `Actor` and mapping them to a field `actedIn` and the same with the type `Director` to a field `directed`.
-
-After executing it, you can scroll through and see these fields on a result _if_ compatible.
-
-```graphql
-query {
-  Person(first:10,orderBy:born_asc) {
-    name
-    born
-    ... on Actor {
-      actedIn: movies {
-      	title
-      }
-    }
-    ... on Director {
-      directed: movies {
+    ```graphql
+    query {
+      Movie(first:10) {
         title
+        tagline
+        released
       }
     }
-  }
-}
-```
+    ```
+
+1. **Fetch first 10 movies along with their connected actors and director**
+
+    ```graphql
+    query {
+      Movie(first:10) {
+        title
+        tagline
+        released
+        actors {
+          name
+          born
+        }
+        director {
+          name
+          born
+        }
+      }
+    }
+    ```
+
+1. **Fetch the actor "Tom Hanks" and his four most recent movies**
+
+    ```graphql
+    query {
+      Actor(name:"Tom Hanks") {
+        name
+        born
+        movies(first:4,orderBy:released_desc) {
+          title
+          released
+        }
+      }
+    }
+    ```
+
+1. **Fetch the oldest 10 people and indicate the movies they acted in and/or directed**
+
+    In this query, you can see the concept of how interfaces work in GraphQL. The query is on the type `Person` which is an interface. On that interface, we can gather the interface fields `name` and `born` without specifying a type. Using the fragment `... on Type` syntax, we can also specify fields to return _if_ the result matches a specific type, and even map them to a new name. In this case, we are fetching all `movies` for results of type `Actor` and mapping them to a field `actedIn` and the same with the type `Director` to a field `directed`.
+
+    After executing it, you can scroll through and see these fields on a result _if_ compatible.
+
+    ```graphql
+    query {
+      Person(first:10,orderBy:born_asc) {
+        name
+        born
+        ... on Actor {
+          actedIn: movies {
+            title
+          }
+        }
+        ... on Director {
+          directed: movies {
+            title
+          }
+        }
+      }
+    }
+    ```
 
 ## Custom Cypher directive
 

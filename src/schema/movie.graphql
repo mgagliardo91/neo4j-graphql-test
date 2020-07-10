@@ -1,0 +1,22 @@
+type Movie {
+  id: ID
+  title: String
+  released: Int
+  tagline: String
+  actors: [Person] @relation(name:"ACTED_IN", direction:IN)
+  director: Person @relation(name:"DIRECTED", direction:IN)
+}
+
+extend type Mutation {
+  newMovie(title:ID!, released:Int, tagline:String) : Movie @cypher(statement:"MERGE (m:Movie {title:{title}}) ON CREATE SET m += {released:{released}, tagline:{tagline}} RETURN m")
+}
+
+type MovieWithActors {
+  movie: Movie @neo4j_ignore
+  actors: [Actor] @neo4j_ignore
+}
+
+extend type Query {
+  movieCount: Int @cypher(statement:"MATCH (:Movie) RETURN count(*)")
+  getMovies(actorNames: [String!]): [MovieWithActors] @neo4j_ignore
+}

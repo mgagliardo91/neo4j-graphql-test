@@ -1,0 +1,34 @@
+interface Person {
+  id: ID!
+  name: String
+  born: Int
+}
+
+type Actor implements Person {
+  id: ID!
+  name: String
+  born: Int
+  movies: [Movie] @relation(name:"ACTED_IN", direction:OUT)
+  score(value:Int!): Int @cypher(statement:"RETURN $value")
+  totalMoviesCount: Int @cypher(statement: "MATCH (this)-[:ACTED_IN]->() RETURN count(*) AS totalMoviesCount")
+  colleagues: [Person] @cypher(statement: "MATCH (this)-[:ACTED_IN]->()<-[:ACTED_IN]-(other) RETURN other")
+  recommendedColleagues(first: Int = 10): [Person] @cypher(statement: """
+    MATCH (this)-[:ACTED_IN]->(m)<-[:ACTED_IN]-(coActors), (coActors)-[:ACTED_IN]->(m2)<-[:ACTED_IN]-(cocoActors)
+    WHERE NOT (this)-[:ACTED_IN]->()<-[:ACTED_IN]-(cocoActors) AND this <> cocoActors
+    RETURN cocoActors, count(*) AS Strength ORDER BY Strength DESC
+  """)
+  randomValue(max: Int!): Int @neo4j_ignore
+}
+
+type Director implements Person {
+  id: ID!
+  name: String
+  born: Int
+  movies: [Movie] @relation(name:"DIRECTED", direction:OUT)
+  score(value:Int!): Int @cypher(statement:"RETURN {value}")
+}
+
+extend type Query {
+  personByName(name:String!): Person @cypher(statement:"MATCH (p:Person {name: $name}) RETURN p")
+  personByBorn(born:Int!): [Person] @cypher(statement:"MATCH (p:Person {born: $born}) RETURN p")
+}

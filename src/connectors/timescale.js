@@ -6,6 +6,6 @@ const initOptions = {
     }
 };
 
-export default pgp(initOptions)(
+export default pgp(initOptions) (
     process.env.POSTGRES_URL || 'postgresql://user:pass@localhost:5105/db'
 )

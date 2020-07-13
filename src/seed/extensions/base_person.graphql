@@ -4,13 +4,13 @@ interface Person {
   born: Int
 }
 
+"""Actor"""
 type Actor implements Person {
   id: ID!
   name: String
   born: Int
   movies: [Movie] @relation(name:"ACTED_IN", direction:OUT)
   score(value:Int!): Int @cypher(statement:"RETURN $value")
-  totalMoviesCount: Int @cypher(statement: "MATCH (this)-[:ACTED_IN]->() RETURN count(*) AS totalMoviesCount")
   colleagues: [Person] @cypher(statement: "MATCH (this)-[:ACTED_IN]->()<-[:ACTED_IN]-(other) RETURN other")
   recommendedColleagues(first: Int = 10): [Person] @cypher(statement: """
     MATCH (this)-[:ACTED_IN]->(m)<-[:ACTED_IN]-(coActors), (coActors)-[:ACTED_IN]->(m2)<-[:ACTED_IN]-(cocoActors)

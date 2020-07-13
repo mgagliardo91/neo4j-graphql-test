@@ -1,4 +1,2 @@
-import driver from "./neo4j";
-import pg from "./timescale";
-
-export default { driver, pg };
+export { default as graphStore } from './neo4j';
+export { default as timescale } from './timescale';

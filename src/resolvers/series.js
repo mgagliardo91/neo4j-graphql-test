@@ -10,7 +10,7 @@ export default {
     SUM: "sum(value)",
   },
   Query: {
-    getTimeSeries: async (_, { label, from, to, interval, aggregate, fill }, { pg } ) => {
+    getTimeSeries: async (_, { label, from, to, interval, aggregate, fill }, { timescale } ) => {
       // Resolve options
       var time_bucket = "time_bucket"
       if (fill != "NONE") {
@@ -22,7 +22,7 @@ export default {
             aggregate = `locf(${aggregate})`
         }
       }
-      const result = await pg.query(`
+      const result = await timescale.query(`
         SELECT
           label,
           to_json($(time_bucket:raw)($(interval), time) AT TIME ZONE 'UTC')#>>'{}' || 'Z' AS time,

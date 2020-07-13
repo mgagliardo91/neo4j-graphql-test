@@ -283,5 +283,6 @@ query {
       when
       score
     }
+  }
 }
 ```

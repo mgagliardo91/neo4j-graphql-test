@@ -4,7 +4,8 @@ import { makeAugmentedSchema } from 'neo4j-graphql-js';
 import { graphqlExpress } from 'apollo-server-express/dist/expressApollo'
 import { renderPlaygroundPage } from '@apollographql/graphql-playground-html';
 import resolvers from './resolvers';
-import graphStore from './graphStore';
+import { graphStore, timescale } from './connectors';
+import directiveResolvers from './directives';
 import createTypeDefs from './types';
 import accepts from 'accepts';
 
@@ -16,6 +17,7 @@ const createSchema = async () => {
     schema = makeAugmentedSchema({
       typeDefs: (await createTypeDefs()),
       resolvers,
+      directiveResolvers,
       config: {
         query: true,
         mutation: false
@@ -77,7 +79,8 @@ class DynamicApolloServer extends ApolloServer {
 export default async () => new DynamicApolloServer({
   schema: await createSchema(),
   context: {
-    driver: graphStore
+    driver: graphStore,
+    timescale
   }
 });
 

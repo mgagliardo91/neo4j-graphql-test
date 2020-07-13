@@ -2,7 +2,8 @@ import { createServer } from 'http';
 import express from 'express';
 import 'dotenv/config';
 
-import { initialize as initializeGraphStore } from './graphStore';
+import { initialize as initializeGraphStore } from './connectors/neo4j';
+import { timescale } from './connectors';
 import createApolloServer from './apollo';
 import { sequelize } from './models';
 import createRoutes from './routes';
@@ -15,6 +16,7 @@ createRoutes(app);
 (async () => {
   try {
     await initializeGraphStore();
+    await timescale.connect();
     await sequelize.sync({ force: !!process.env.PG_RESET });
     await seedDatabase(); // Seed default data
     

@@ -1,6 +1,4 @@
-
 import neo4j from 'neo4j-driver';
-import 'dotenv/config';
 
 const neoUser = process.env.NEO$J_USER || 'neo4j';
 const newPass = process.env.NEO$J_PASS || 'test';

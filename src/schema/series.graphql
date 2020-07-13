@@ -1,0 +1,45 @@
+directive @timescale(sql: String) on FIELD_DEFINITION
+
+enum Aggregate {
+  AVG
+  COUNT
+  FIRST
+  LAST
+  MAX
+  MIN
+  STDDEV
+  SUM
+}
+
+enum Fill {
+  LINEAR
+  NONE
+  NULL
+  PREVIOUS
+}
+
+type Series {
+  label: String
+  time: String
+  value: Float
+}
+
+extend type Query {
+  getTimeSeries(
+    label: String!,
+    from: String = "2020-01-01",
+    to: String = "2020-08-01",
+    interval: String = "1 hr",
+    aggregate: Aggregate = AVG,
+    fill: Fill = NONE
+  ): [Series] @neo4j_ignore
+}
+
+type MovieReview {
+  when: String
+  score: Float
+}
+
+extend type Movie {
+  reviews: [MovieReview] @timescale(sql: "SELECT now() AS when, random() AS score") @neo4j_ignore
+}

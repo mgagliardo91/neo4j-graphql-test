@@ -16,3 +16,14 @@ services:
       - "./db/logs:/logs"
       - "./db/import:/var/lib/neo4j/import"
       - "./db/plugins:/plugins"
+  db:
+    image: postgres:11
+    restart: always
+    ports:
+      - "6000:5432"
+    volumes:
+      - ./db/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres

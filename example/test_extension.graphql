@@ -1,0 +1,7 @@
+type MyExtension {
+  value: String!
+}
+
+extend type Actor {
+  totalMoviesCount: Int @cypher(statement: "MATCH (this)-[:ACTED_IN]->() RETURN count(*) AS totalMoviesCount")
+}

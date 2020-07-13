@@ -217,3 +217,47 @@ query {
   }
 }
 ```
+
+## Custom connectors
+
+As shown, we can choose to resolve a query by delegating to another connector besides neo4j. For example, we have implemented a [Timescale](https://www.timescale.com/) connector in `src/connectors/timescale.js`. Here's a simple example query using this connector:
+
+```graphql
+query {
+  getTimeSeries(
+    label: "measurement"
+    from: "2020-05-01"
+    to: "2020-06-01"
+    interval: "1 hr"
+    aggregate: LAST
+    fill: NONE
+  ) {
+    label
+    time
+    value
+  }
+}
+```
+
+## Other custom directives
+
+Directives are a powerful way to add annotations to your schema. One use case (as already shown with `@neo_4j`) is to help reduce resolver boilerplate for a connector. Here, we have defined a `@timescale` directive  in `src/directives.js` to send raw SQL queries directly to Timescale:
+
+```graphql
+extend type Movie {
+  reviews: [MovieReview] @timescale(sql: "SELECT now() AS when, random() AS score") @neo4j_ignore
+}
+```
+
+To use it:
+
+```graphql
+query {
+  Movie(first:10) {
+    title
+    reviews {
+      when
+      score
+    }
+}
+```

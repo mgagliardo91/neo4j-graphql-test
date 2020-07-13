@@ -67,7 +67,7 @@ type Director implements Person {
 }
 ```
 
-In the schema above (which is stiched from the `.graphql` files in the `./src/schema` directory), we have a `Movie` type with some fields and two relationships to `actors` and a `director` using the cypher directive `@relation` syntax. Then we have a `Person` interface and two implementations `Actor` and `Director`. There are some other methods left out of the README, but this exemplifies the initial structure.
+In the schema above (which is stiched from the `.graphql` files, we have a `Movie` type with some fields and two relationships to `actors` and a `director` using the cypher directive `@relation` syntax. Then we have a `Person` interface and two implementations `Actor` and `Director`. There are some other methods left out of the README, but this exemplifies the initial structure.
 
 ## Example Queries
 
@@ -217,3 +217,27 @@ query {
   }
 }
 ```
+
+## Schema-Stitching using a persistent store
+
+In order to demonstrate the use of dynamic schema-stitching that supports modifications to the schema in real-time, a postgres database was appended to the docker-compose script so that we can persist _extensions_.
+
+An _extension_ in this case is just a mapping of a name to a subset of a schema stored as plain text. At run time, all extensions are loaded from the database, merged together to create a GraphQL schema, and then cached for subsequent requests.
+
+An API endpoint at `/extensions` can be used to create/update/delete new extensions live.
+
+**Test it out:**
+
+On startup, when `npm start` is executed, the base types stored in `src/seed/extensions` will be seeded into the database and used to inflate the default GraphQL schema. If you navigate to `http://localhost:3000/graphql` you will see the schema loaded and working properly.
+
+Next, take a look at the `test_extension.graphql` file located in `example/`. Its contents outline a new type with some mock field as well as a new field on the `Actor` type (via `extend type`) which is bound to a cypher database call.
+
+To add this extension, run:
+
+```bash
+ node scripts/extension.js ./example/test_extension.graphql
+```
+
+This command simply wraps a PUT request to `/extensions/{extension_name}` passing the `schema` as text. If you navigate back to the GraphQL playground (if its already up, it will automatically update), and view the schema tab on the right, you will notice the new type as well as the new property appended to the `Actor` type.
+
+A look at the database table `extensions` will show the extension added as an entry.
